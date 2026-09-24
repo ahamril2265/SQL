@@ -107,19 +107,19 @@ SELECT product_id, SUM( quantity * unit_price ) AS revenue FROM order_items GROU
 WITH total_revenue_customer AS ( SELECT o.customer_id, SUM( oi.quantity * oi.unit_price * ( 1 - oi.discount ) ) AS revenue FROM orders o JOIN order_items oi ON oi.order_id = o.order_id GROUP BY o.customer_id ) SELECT * FROM total_revenue_customer WHERE revenue > 200;
 
 -- 32
-
+SELECT e.* FROM employees e WHERE salary > ( SELECT AVG( e2.salary ) FROM employees e2 WHERE e.department = e2.department );
 
 -- 33
-
+SELECT MAX( unit_price ) FROM products p WHERE unit_price < ( SELECT MAX( unit_price ) FROM products p2 );
 
 -- 34
-
+WITH product_sales AS ( SELECT p.category_id, p.product_id, SUM( oi.quantity ) AS total_units FROM products p JOIN order_items oi on oi.product_id = p.product_id GROUP BY p.product_id, p.category_id ) SELECT *, RANK() OVER ( PARTITION BY category_id ORDER BY total_units DESC  ) FROM product_sales;
 
 -- 35
-
+WITH last_order AS ( SELECT customer_id, order_id, status, ROW_NUMBER() OVER ( PARTITION BY customer_id ORDER BY order_date DESC ) AS rn FROM orders ) SELECT customer_id, order_id, status FROM last_order WHERE rn = 1 AND status = 'cancelled';
 
 -- 36
-
+WITH product_avg AS ( SELECT product_id, AVG( rating ) AS avg_rating FROM reviews WHERE rating IS NOT NULL GROUP BY product_id ) SELECT * FROM product_avg WHERE avg_rating > ( SELECT AVG( rating) FROM reviews WHERE rating IS NOT NULL ); 
 
 -- 37
 
