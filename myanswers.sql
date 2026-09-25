@@ -140,10 +140,10 @@ WITH order_revenue AS ( SELECT o.customer_id, o.order_id, o.order_date, SUM(oi.q
 SELECT product_id, category_id, unit_price, unit_price - AVG(unit_price) OVER (PARTITION BY category_id) AS category_avg FROM products ORDER BY category_id DESC;
 
 -- 43
-
+WITH order_revenue AS ( SELECT order_id, SUM(quantity * unit_price * (1 - discount)) AS order_total FROM order_items GROUP BY order_id ) SELECT *, NTILE(4) OVER (ORDER BY order_total) AS revenue_quartile FROM order_revenue;
 
 -- 44
-
+SELECT employee_id, order_id, order_date, order_date - LAG(order_date) OVER (PARTITION BY employee_id ORDER BY order_date) AS days_since_previous FROM orders;
 
 -- 45
 
