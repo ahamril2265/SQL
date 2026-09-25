@@ -131,13 +131,13 @@ SELECT customer_id, order_id, order_date, LAG( order_date ) OVER ( PARTITION BY 
 WITH order_revenue AS ( SELECT o.customer_id, o.order_id, o.order_date, SUM(oi.quantity * oi.unit_price * (1 - oi.discount)) AS order_total FROM orders o JOIN order_items oi ON oi.order_id = o.order_id GROUP BY o.customer_id, o.order_id, o.order_date ) SELECT *, SUM(order_total) OVER (PARTITION BY customer_id ORDER BY order_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total FROM order_revenue ORDER BY customer_id, order_date;
 
 -- 40
-WITH ranked AS (SELECT product_id, product_name, category_id, unit_price, stock_quantity, discontinued, ROW_NUMBER() OVER ( PARTITION BY category_id ORDER BY unit_price DESC ) AS rnk FROM products ) SELECT product_id, product_name, category_id, unit_price, stock_quantity, discontinued, rnk FROM ranked WHERE rnk > 3;
+WITH ranked AS (SELECT product_id, product_name, category_id, unit_price, stock_quantity, discontinued, ROW_NUMBER() OVER ( PARTITION BY category_id ORDER BY unit_price DESC ) AS rnk FROM products ) SELECT product_id, product_name, category_id, unit_price, stock_quantity, discontinued, rnk FROM ranked WHERE rnk <= 2;
 
 -- 41
-
+WITH order_revenue AS ( SELECT o.customer_id, o.order_id, o.order_date, SUM(oi.quantity * oi.unit_price * (1 - oi.discount)) AS order_total FROM orders o JOIN order_items oi ON oi.order_id = o.order_id GROUP BY o.customer_id, o.order_id, o.order_date ) SELECT *, AVG(order_total) OVER (PARTITION BY customer_id ORDER BY order_date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS moving_avg_3 FROM order_revenue ORDER BY customer_id, order_date;
 
 -- 42
-
+SELECT product_id, category_id, unit_price, unit_price - AVG(unit_price) OVER (PARTITION BY category_id) AS category_avg FROM products ORDER BY category_id DESC;
 
 -- 43
 
