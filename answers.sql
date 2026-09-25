@@ -242,7 +242,7 @@ WHERE avg_rating > (SELECT AVG(rating) FROM reviews WHERE rating IS NOT NULL);
 -- 37
 WITH spend AS (
     SELECT o.customer_id, SUM(oi.quantity * oi.unit_price * (1 - oi.discount)) AS total_spend
-    FROM orders o
+    FROM orders o   
     JOIN order_items oi ON oi.order_id = o.order_id
     GROUP BY o.customer_id
 )

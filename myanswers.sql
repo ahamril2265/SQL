@@ -122,16 +122,16 @@ WITH last_order AS ( SELECT customer_id, order_id, status, ROW_NUMBER() OVER ( P
 WITH product_avg AS ( SELECT product_id, AVG( rating ) AS avg_rating FROM reviews WHERE rating IS NOT NULL GROUP BY product_id ) SELECT * FROM product_avg WHERE avg_rating > ( SELECT AVG( rating) FROM reviews WHERE rating IS NOT NULL ); 
 
 -- 37
-
+WITH total_spends AS ( SELECT o.customer_id, SUM( oi.quantity * oi.unit_price * ( 1 - oi.discount ) ) AS total__order FROM orders o JOIN order_items oi ON oi.order_id = o.order_id GROUP BY o.customer_id ) SELECT customer_id, total__order, RANK() OVER ( ORDER BY total__order DESC ) , DENSE_RANK() OVER ( ORDER BY total__order DESC ) FROM total_spends;
 
 -- 38
-
+SELECT customer_id, order_id, order_date, LAG( order_date ) OVER ( PARTITION BY customer_id ORDER BY order_date ) AS previous_order FROM orders;
 
 -- 39
-
+WITH order_revenue AS ( SELECT o.customer_id, o.order_id, o.order_date, SUM(oi.quantity * oi.unit_price * (1 - oi.discount)) AS order_total FROM orders o JOIN order_items oi ON oi.order_id = o.order_id GROUP BY o.customer_id, o.order_id, o.order_date ) SELECT *, SUM(order_total) OVER (PARTITION BY customer_id ORDER BY order_date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total FROM order_revenue ORDER BY customer_id, order_date;
 
 -- 40
-
+WITH ranked AS (SELECT product_id, product_name, category_id, unit_price, stock_quantity, discontinued, ROW_NUMBER() OVER ( PARTITION BY category_id ORDER BY unit_price DESC ) AS rnk FROM products ) SELECT product_id, product_name, category_id, unit_price, stock_quantity, discontinued, rnk FROM ranked WHERE rnk > 3;
 
 -- 41
 
